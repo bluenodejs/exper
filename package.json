@@ -1,0 +1,26 @@
+{
+  "name": "bluenode",
+  "version": "0.1.0",
+  "description": "BluePrints with plugins on React",
+  "main": "dist/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bluenodejs/tmp.git"
+  },
+  "keywords": [
+    "blueprint",
+    "draft",
+    "node",
+    "d3",
+    "bluenode"
+  ],
+  "author": "Sergey Sova <i.am@lestad.net> (https://lestad.top)",
+  "license": "GPL-3.0",
+  "bugs": {
+    "url": "https://github.com/bluenodejs/tmp/issues"
+  },
+  "homepage": "https://github.com/bluenodejs/tmp#readme"
+}
