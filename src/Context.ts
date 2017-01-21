@@ -4,6 +4,7 @@ import Directory from './Directory'
 import { createShortUID } from './util/uid'
 
 export type Connection = {
+  type: 'Data' | 'Flow',
   from: string, // Node.id
   to: string, // Node.id
   output: string, // Output name
@@ -79,6 +80,7 @@ export default class Context {
 
     const connectionId = createShortUID()
     const connection: Connection = {
+      type: 'Data',
       from: sourceNode.id,
       to: targetNode.id,
       output: outputName,
