@@ -4,9 +4,11 @@ import generate from 'babel-generator'
 import Context from '../Context'
 import Node from '../Node'
 
+type RequiredModules = Map<string, Set<string>>
 
 export default class Compiler {
   readonly ctx: Context
+  private body: Array<t.Statement | t.ModuleDeclaration> = []
 
   constructor(context: Context) {
     this.ctx = context
@@ -16,10 +18,10 @@ export default class Compiler {
     const nodeList = this.ctx.getNodeList()
     const node: Node = nodeList[0]
 
-    const compiledList: Array<t.Statement> = []
-    compiledList.push(this.compileNode(node))
+    this.body = nodeList.map(node => this.compileNode(node))
+    // this.body.push(this.compileNode(node))
 
-    return generate(this.finalCompile(compiledList)).code
+    return generate(this.finalCompile()).code
   }
 
   private compileNode(node: Node): t.Statement {
@@ -41,9 +43,9 @@ export default class Compiler {
     )
   }
 
-  private finalCompile(body: Array<t.Statement | t.ModuleDeclaration>): t.File {
+  private finalCompile(): t.File {
     return t.file(
-      t.program(body),
+      t.program(this.body),
       [],
       [],
     )
