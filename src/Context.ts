@@ -1,41 +1,108 @@
 import EventEmitter from './EventEmitter'
 import Node from './Node'
-import Statement from './Statement'
-import StatementList from './StatementList'
-import Type from './Type'
-import { Module } from './Module'
-import { ECONTEXT, EMODULE } from './Events'
+import Directory from './Directory'
+import { createShortUID } from './util/uid'
 
+export type Connection = {
+  from: string, // Node.id
+  to: string, // Node.id
+  output: string, // Output name
+  input: string, // Input name
+}
 
 export default class Context {
-  events: EventEmitter        = new EventEmitter()
-  nodeList: Map<string, Node> = new Map()
-  statements: StatementList   = new StatementList()
-  types: Set<Type>            = new Set()
-  modules: Set<Module>        = new Set()
+  readonly id: string = createShortUID()
+  private events: EventEmitter = new EventEmitter()
+  private nodeList: Map<string, Node> = new Map()
+  private connections: Map<string, Connection> = new Map()
+  private dir: Directory
 
-
-  constructor() {
+  constructor(directory: Directory) {
+    this.dir = directory
   }
 
   initialize() {
-    this.events.emit(ECONTEXT.create)
+    this.events.emit('create')
   }
 
   destroy() {
-    this.events.emit(ECONTEXT.destroy)
+    this.events.emit('destroy')
+  }
 
-    for (const module of this.modules.values()) {
-      module.uninstall(this)
+  addNode(node: Node): Node {
+    if (!this.dir.hasStatement(node.targetName))
+      throw new TypeError(`Unknown statement '${node.targetName}' on node '${node.id}#${node.type}'`)
+
+    node.loadStatement(this.dir.getStatement(node.targetName))
+    this.nodeList.set(node.id, node)
+
+    return node
+  }
+
+  removeNode(node: Node | string) {
+    if (typeof node === 'string') {
+      if (this.nodeList.has(node)) {
+        this.nodeList.delete(node)
+      }
+    }
+    else {
+      this.nodeList.delete(node.id)
     }
   }
 
-  installModule(module: Module) {
-    module.getTypes().forEach(type => this.types.add(new type()))
-    module.getStatements().forEach(stat => this.statements.add(new stat()))
-    module.install(this)
-
-    this.modules.add(module)
+  getNode(nodeId: string): Node {
+    return this.nodeList.get(nodeId)
   }
 
+  /**
+   * Create connection with nodes
+   * Link firstNode.output -> secondNode.input
+   *
+   * @param  {string} firstNodeId
+   * @param  {string} secondNodeId
+   * @param  {string} outputName
+   * @param  {string} inputName
+   */
+  link(firstNodeId: string, secondNodeId: string, outputName: string, inputName: string) {
+    const firstNode = this.nodeList.get(firstNodeId)
+    const secondNode = this.nodeList.get(secondNodeId)
+
+    if (!firstNode) throw new ReferenceError(`Node with id '${firstNodeId}' not exists`)
+    if (!secondNode) throw new ReferenceError(`Node with id '${secondNodeId}' not exists`)
+
+    const connectionId = createShortUID()
+    const connection: Connection = {
+      from: firstNode.id,
+      to: secondNode.id,
+      output: outputName,
+      input: inputName,
+    }
+
+    this.connections.set(connectionId, connection)
+
+    firstNode.setOutletConnection(outputName, connectionId)
+    secondNode.setInletConnection(inputName, connectionId)
+
+    this.events.emit('node/linked', connection)
+  }
+
+  getNodeList(): Array<Node> {
+    const list: Array<Node> = []
+
+    for (const node of this.nodeList.values()) {
+      list.push(node)
+    }
+
+    return list
+  }
+
+  getConnectionList(): { [key: string]: Connection} {
+    const list: { [key: string]: Connection} = {}
+
+    for (const [id, conn] of this.connections.entries()) {
+      list[id] = conn
+    }
+
+    return list
+  }
 }

@@ -1,4 +1,6 @@
 
+let it = 0
+
 export function createShortUID(): string {
-  return `0000${(Math.random() * Math.pow(36, 4) << 0).toString(36)}`.slice(-4)
+  return ((++it * 1e14 + Date.now()) * Math.pow(36, 10)).toString(36)
 }
