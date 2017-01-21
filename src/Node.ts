@@ -9,7 +9,7 @@ export type Inlet = {
   value?: any,
 }
 export type Outlet = {
-  connectionId?: ConnectionId,
+  connections: Set<ConnectionId>,
   valueType: ValueType,
 }
 
@@ -40,7 +40,7 @@ export default class Node {
     }
 
     for (const output of this.statement.outputs.values()) {
-      this.outlets.set(output.name, { valueType: output.type })
+      this.outlets.set(output.name, { valueType: output.type, connections: new Set() })
     }
 
     this.flowIn.enabled = this.statement.flowIn
@@ -77,8 +77,26 @@ export default class Node {
     }
 
     const output = this.outlets.get(outputName)
-    output.connectionId = connectionId
+    output.connections.add(connectionId)
     this.outlets.set(outputName, output)
+
+    return this
+  }
+
+  dropInletConnection(inputName: string, connectionId: string): this {
+    if (this.inlets.has(inputName)) {
+      this.inlets.delete(inputName)
+    }
+
+    return this
+  }
+
+  dropOutletConnection(outputName: string, connectionId: string): this {
+    if (this.outlets.has(outputName)) {
+      const outlet = this.outlets.get(outputName)
+      outlet.connections.delete(connectionId)
+      this.outlets.set(outputName, outlet)
+    }
 
     return this
   }

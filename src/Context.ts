@@ -58,34 +58,57 @@ export default class Context {
 
   /**
    * Create connection with nodes
-   * Link firstNode.output -> secondNode.input
+   * Link sourceNode.output -> targetNode.input
    *
-   * @param  {string} firstNodeId
-   * @param  {string} secondNodeId
+   * @param  {string} sourceNodeId
+   * @param  {string} targetNodeId
    * @param  {string} outputName
    * @param  {string} inputName
    */
-  link(firstNodeId: string, secondNodeId: string, outputName: string, inputName: string) {
-    const firstNode = this.nodeList.get(firstNodeId)
-    const secondNode = this.nodeList.get(secondNodeId)
+  link(sourceNodeId: string, targetNodeId: string, outputName: string, inputName: string) {
+    const sourceNode = this.nodeList.get(sourceNodeId)
+    const targetNode = this.nodeList.get(targetNodeId)
 
-    if (!firstNode) throw new ReferenceError(`Node with id '${firstNodeId}' not exists`)
-    if (!secondNode) throw new ReferenceError(`Node with id '${secondNodeId}' not exists`)
+    if (!sourceNode) throw new ReferenceError(`Node with id '${sourceNodeId}' not exists`)
+    if (!targetNode) throw new ReferenceError(`Node with id '${targetNodeId}' not exists`)
+
+    if (targetNode.inlets.has(inputName)) {
+      const oldConnectionId = targetNode.inlets.get(inputName).connectionId
+      this.unlink(oldConnectionId)
+    }
 
     const connectionId = createShortUID()
     const connection: Connection = {
-      from: firstNode.id,
-      to: secondNode.id,
+      from: sourceNode.id,
+      to: targetNode.id,
       output: outputName,
       input: inputName,
     }
 
     this.connections.set(connectionId, connection)
 
-    firstNode.setOutletConnection(outputName, connectionId)
-    secondNode.setInletConnection(inputName, connectionId)
+    sourceNode.setOutletConnection(outputName, connectionId)
+    targetNode.setInletConnection(inputName, connectionId)
 
     this.events.emit('node/linked', connection)
+  }
+
+  /**
+   * Drop connection from list and from nodes
+   *
+   * @param  {string} connectionId
+   */
+  unlink(connectionId: string) {
+    if (this.connections.has(connectionId)) {
+      const connection: Connection = this.connections.get(connectionId)
+      const nodeFrom = this.getNode(connection.from)
+      const nodeTo = this.getNode(connection.to)
+
+      nodeFrom.dropOutletConnection(connection.output, connectionId)
+      nodeTo.dropInletConnection(connection.input, connectionId)
+
+      this.connections.delete(connectionId)
+    }
   }
 
   getConnection(id: string): Connection {
