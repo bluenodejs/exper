@@ -60,8 +60,9 @@ const NumberAddNode = context.addNode('Number.Add')
 
 const NumberToStringNode = context.addNode('Number.ToString')
 
-
 context.link(NumberAddNode.id, NumberToStringNode.id, 'Result', 'Number')
+
+const OnCreateEvent = context.addNode('BluePrint.onCreate')
 
 
 // ===== Print results ===== //
