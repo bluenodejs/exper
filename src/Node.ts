@@ -14,9 +14,6 @@ export type Outlet = {
 }
 
 export default class Node {
-  static TYPE_FUNCTION: StatementType = 'Function'
-  static TYPE_EVENT: StatementType = 'Event'
-
   private events: EventEmitter = new EventEmitter()
   private statement: Statement
 

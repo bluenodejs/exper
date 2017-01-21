@@ -41,6 +41,13 @@ directory.addStatement(
   .build()
 )
 
+directory.addStatement(
+  Directory.createStatement('BluePrint.onCreate')
+  .typeEvent()
+  .flow({ out: true })
+  .build()
+)
+
 // ===== Context creation ===== //
 //
 const context = new Context(directory)
