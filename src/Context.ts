@@ -29,11 +29,13 @@ export default class Context {
     this.events.emit('destroy')
   }
 
-  addNode(node: Node): Node {
-    if (!this.dir.hasStatement(node.targetName))
-      throw new TypeError(`Unknown statement '${node.targetName}' on node '${node.id}#${node.type}'`)
+  addNode(targetName): Node {
+    if (!this.dir.hasStatement(targetName))
+      throw new TypeError(`Unknown statement '${targetName}'`)
 
-    node.loadStatement(this.dir.getStatement(node.targetName))
+    const statement = this.dir.getStatement(targetName)
+    const node = new Node(statement)
+
     this.nodeList.set(node.id, node)
 
     return node

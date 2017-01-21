@@ -19,7 +19,6 @@ export default class Compiler {
     const node: Node = nodeList[0]
 
     this.body = nodeList.map(node => this.compileNode(node))
-    // this.body.push(this.compileNode(node))
 
     return generate(this.finalCompile()).code
   }

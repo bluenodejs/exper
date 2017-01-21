@@ -4,8 +4,9 @@ import Node from './src/Node'
 
 import Compiler from './src/compiler'
 
+// ===== Statement definition ===== //
+
 const directory = new Directory()
-const context = new Context(directory)
 
 directory.addStatement(
   Directory.createStatement('Time.now')
@@ -40,20 +41,23 @@ directory.addStatement(
   .build()
 )
 
-const LogPrintNode =
-context.addNode(new Node(Node.TYPE_FUNCTION, 'Log.Print'))
+// ===== Context creation ===== //
+//
+const context = new Context(directory)
 
-const NumberAddNode =
-context.addNode(new Node(Node.TYPE_FUNCTION, 'Number.Add'))
+const LogPrintNode = context.addNode('Log.Print')
+
+const NumberAddNode = context.addNode('Number.Add')
   .setInletValue('A', 5)
   .setInletValue('B', 4)
 
-const NumberToStringNode =
-context.addNode(new Node(Node.TYPE_FUNCTION, 'Number.ToString'))
+const NumberToStringNode = context.addNode('Number.ToString')
 
 
 context.link(NumberAddNode.id, NumberToStringNode.id, 'Result', 'Number')
 
+
+// ===== Print results ===== //
 
 console.log('Node List:')
 context.getNodeList().forEach(node => console.log('\n', node.targetName, ' -- ', node))

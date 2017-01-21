@@ -1,9 +1,8 @@
 import EventEmitter from './EventEmitter'
-import { StatementName, Statement, Input, Output, ValueType } from './Directory'
+import { StatementName, Statement, StatementType, Input, Output, ValueType } from './Directory'
 import { createShortUID } from './util/uid'
 
 export type ConnectionId = string
-export type NodeType = 'Function' | 'Event'
 export type Inlet = {
   connectionId?: ConnectionId,
   valueType: ValueType,
@@ -15,14 +14,14 @@ export type Outlet = {
 }
 
 export default class Node {
-  static TYPE_FUNCTION: NodeType = 'Function'
-  static TYPE_EVENT: NodeType = 'Event'
+  static TYPE_FUNCTION: StatementType = 'Function'
+  static TYPE_EVENT: StatementType = 'Event'
 
   private events: EventEmitter = new EventEmitter()
   private statement: Statement
 
   readonly id: string = createShortUID()
-  readonly type: NodeType
+  readonly type: StatementType
   readonly targetName: StatementName
 
   inlets: Map<string, Inlet> = new Map()
@@ -30,25 +29,25 @@ export default class Node {
   flowIn: { enabled: boolean, connections: Set<ConnectionId> } = { enabled: false, connections: new Set() }
   flowOut: { enabled: boolean, connection?: ConnectionId } = { enabled: false }
 
-  constructor(type: NodeType, targetName: StatementName) {
-    this.type = type
-    this.targetName = targetName
-    this.statement = null
+  constructor(statement: Statement) {
+    this.statement = statement
+    this.targetName = statement.name
+    this.type = statement.type
+
+    this.loadStatement()
   }
 
-  loadStatement(statement: Statement) {
-    this.statement = statement
-
-    for (const input of statement.inputs.values()) {
+  private loadStatement() {
+    for (const input of this.statement.inputs.values()) {
       this.inlets.set(input.name, { valueType: input.type })
     }
 
-    for (const output of statement.outputs.values()) {
+    for (const output of this.statement.outputs.values()) {
       this.outlets.set(output.name, { valueType: output.type })
     }
 
-    this.flowIn.enabled = statement.flowIn
-    this.flowOut.enabled = statement.flowOut
+    this.flowIn.enabled = this.statement.flowIn
+    this.flowOut.enabled = this.statement.flowOut
   }
 
   setInletValue(inputName: string, value: any): this {

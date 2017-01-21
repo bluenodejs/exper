@@ -1,5 +1,5 @@
 
-export type StatementType = 'FunctionCall' | 'Handler'
+export type StatementType = 'Function' | 'Event'
 export type StatementName = string
 export type ValueType = string
 export type Input = { name: string, type: ValueType, customizable: boolean, defaultValue: any }
@@ -50,12 +50,12 @@ class StatementBuilder {
   }
 
   typeFunction(): this {
-    this.type = 'FunctionCall'
+    this.type = 'Function'
     return this
   }
 
   typeHandler() : this {
-    this.type = 'Handler'
+    this.type = 'Event'
     return this
   }
 
