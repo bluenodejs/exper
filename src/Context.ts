@@ -86,6 +86,13 @@ export default class Context {
     this.events.emit('node/linked', connection)
   }
 
+  getConnection(id: string): Connection {
+    if (!this.connections.has(id))
+      throw new ReferenceError(`Connection with id '${id}' not exists`)
+
+    return this.connections.get(id)
+  }
+
   getNodeList(): Array<Node> {
     const list: Array<Node> = []
 

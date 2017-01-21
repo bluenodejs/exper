@@ -2,6 +2,8 @@ import Directory from './src/Directory'
 import Context from './src/Context'
 import Node from './src/Node'
 
+import Compiler from './src/compiler'
+
 const directory = new Directory()
 const context = new Context(directory)
 
@@ -57,3 +59,7 @@ console.log('Node List:')
 context.getNodeList().forEach(node => console.log('\n', node.targetName, ' -- ', node))
 console.log('\n\nConnections:')
 console.log(context.getConnectionList())
+
+console.log('\n\n===== Compiled =====\n\n')
+const compiler = new Compiler(context)
+console.log(compiler.compile())

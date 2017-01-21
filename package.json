@@ -14,11 +14,13 @@
   "author": "Sergey Sova <i.am@lestad.net> (https://lestad.top)",
   "license": "MIT",
   "dependencies": {
-    "babel-generator": "^6.22.0",
-    "babel-types": "^6.22.0",
+    "babel-generator": "^6.7.7",
+    "babel-types": "^6.7.7",
     "eventemitter3": "^2.0.2"
   },
   "devDependencies": {
+    "@types/babel-generator": "^6.7.14",
+    "@types/babel-types": "^6.7.14",
     "@types/node": "^7.0.0",
     "typescript": "^2.1.5"
   }
